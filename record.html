@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<head>
+　<title>recording</title>
+</head>
+<body>
+  <div style="display:flex;">
+    <button id="recorder">START</button>
+　  <audio id="player" controls></audio>
+　</div>
+</body>
+<script>
+if (!navigator.mediaDevices) {
+ alert("mediaDevices is unavailable");
+}
+
+let mediaRecorder = null;
+let localstream;
+
+// 録音開始
+recStart = function(){
+  navigator.mediaDevices.getUserMedia({audio:true})
+    .then(function(stream) {
+      localstream = stream;
+      mediaRecorder = new MediaRecorder(stream);
+      mediaRecorder.start();
+    })
+    .catch(function(e){
+      console.log(e);
+    });
+}
+
+// 録音停止
+recStop = function(){
+  mediaRecorder.stop();
+  mediaRecorder.ondataavailable = function(e) {
+    document.getElementById('player').src = URL.createObjectURL(e.data);
+  }
+  localstream.getTracks().forEach(track => track.stop());
+}
+
+document.getElementById('recorder').onclick = function(){
+  // テキストで録音開始、停止を切り替える
+  if (this.textContent == 'START'){
+    recStart();    // 開始
+    this.textContent = 'STOP';
+  } else {
+    recStop();     // 停止
+    this.textContent = 'START';
+  }
+}
+</script>
